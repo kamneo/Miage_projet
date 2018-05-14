@@ -35,6 +35,7 @@ public class DBUtil {
     }
 
     public static void fillRows(String tableName, int nbCol, int nbRow, int nbVal){
+        setAutocommit(false);
         for(int i = 0; i < nbRow; i++){
             StringBuilder sb = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
             for (int y = 0; y < nbCol; y++)
@@ -42,6 +43,26 @@ public class DBUtil {
             sb.deleteCharAt(sb.length() - 1);
             sb.append(")");
             executeStatement(sb.toString());
+            if(i%1000 == 0)
+                commit();
+        }
+        commit();
+        setAutocommit(true);
+    }
+
+    private static void commit() {
+        try {
+            DBConnection.getInstance().getConnection().commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void setAutocommit(boolean b) {
+        try {
+            DBConnection.getInstance().getConnection().setAutoCommit(b);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

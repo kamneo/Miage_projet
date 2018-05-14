@@ -1,6 +1,5 @@
 import DBConnection.DBUtil;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -17,6 +16,9 @@ public class MiageProjet {
             System.out.println(nbCol + " " + nbRow + " "+ nbVal);
             DBUtil.generateTable(nbCol, nbRow, nbVal);
 
+            System.out.println("Voulez vous recommencer ? (Y/n)");
+            String c = new Scanner(System.in).next();
+            onceAgain = c.equals("Y");
         }while(onceAgain);
     }
 }
