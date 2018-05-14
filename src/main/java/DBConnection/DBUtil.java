@@ -1,6 +1,8 @@
 package DBConnection;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
@@ -8,9 +10,14 @@ import java.util.Random;
 
 public class DBUtil {
     public static void generateTable(int nbCol, int nbRow, int nbVal) throws SQLException {
-        StringBuilder sb = new StringBuilder("CREATE TABLE ");
+        generateTable(null, nbCol, nbRow, nbVal);
+    }
+
+    public static void generateTable(String tableName, int nbCol, int nbRow, int nbVal) throws SQLException {
+        StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         Calendar calendar = Calendar.getInstance();
-        String tableName = calendar.getTimeInMillis() + "_table";
+        if(tableName == null)
+            tableName = calendar.getTimeInMillis() + "_table";
         sb.append(tableName + " (");
         char c = 'A';
         for(int i = 0; i < nbCol;i++) {
@@ -46,10 +53,34 @@ public class DBUtil {
     public static void executeStatement(String sql){
         Statement stmt = null;
         try {
-            stmt = DBConnection.getInstance().getConnection().createStatement();
+            Connection connection = DBConnection.getInstance().getConnection();
+            stmt = connection.createStatement();
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static int countAllFrom(String tableName) throws SQLException {
+        String sql = "SELECT count(*) FROM " + tableName;
+        ResultSet res = executeQuery(sql);
+        res.next();
+        return res.getInt(1);
+    }
+
+    private static ResultSet executeQuery(String sql) {
+        Statement stmt = null;
+        try {
+            stmt = DBConnection.getInstance().getConnection().createStatement();
+            return stmt.executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void dropTable(String tableName) {
+        String sql = "DROP TABLE " + tableName;
+        executeStatement(sql);
     }
 }
