@@ -1,7 +1,12 @@
 package compute;
 
+import DBConnection.DBUtil;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
     private static String letters(int size){
@@ -26,4 +31,18 @@ public class Utils {
         List<String> res = new ArrayList<String>();
         return compute("", letters(size), res);
     }
+
+    public static Map<String, Integer> nbRowsBySubGroups(List<String> combinations, String tableName) throws SQLException {
+        Map<String, Integer> costs = new HashMap<String, Integer>();
+        for(String subGroup : combinations) {
+            costs.put(subGroup, nbRowsBySubGroup(subGroup, tableName));
+        }
+        return costs;
+    }
+
+    private static Integer nbRowsBySubGroup(String subGroup, String tableName) throws SQLException {
+        return DBUtil.countAllFromSubGroup(subGroup, tableName);
+    }
+
+
 }
