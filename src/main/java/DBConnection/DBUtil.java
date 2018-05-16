@@ -89,6 +89,17 @@ public class DBUtil {
         return res.getInt(1);
     }
 
+    public static int countAllFromSubGroup(String columns, String tableName) throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < columns.length(); i++)
+            sb.append(columns.charAt(i) + ", ");
+        sb.delete(sb.lastIndexOf(", " ), sb.lastIndexOf(", " ) + 1);
+        String sql = "SELECT count(*) FROM (SELECT DISTINCT " + sb.toString() +" FROM " + tableName + ") as R";
+        ResultSet res = executeQuery(sql);
+        res.next();
+        return res.getInt(1);
+    }
+
     private static ResultSet executeQuery(String sql) {
         Statement stmt = null;
         try {
@@ -101,7 +112,7 @@ public class DBUtil {
     }
 
     public static void dropTable(String tableName) {
-        String sql = "DROP TABLE " + tableName;
+        String sql = "DROP TABLE IF EXISTS " + tableName;
         executeStatement(sql);
     }
 }

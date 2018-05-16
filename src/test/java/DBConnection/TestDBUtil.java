@@ -34,6 +34,12 @@ public class TestDBUtil {
         Assert.assertEquals(5, DBUtil.countAllFrom(tableName));
     }
 
+    @Test
+    public void countAllFromSubGroup() throws SQLException {
+        int res = DBUtil.countAllFromSubGroup("ABC", tableName);
+        Assert.assertTrue(res <= DBUtil.countAllFrom(tableName));
+    }
+
     @Test(expected = NullPointerException.class)
     public void dropTable() throws SQLException {
         DBUtil.dropTable(tableName);
