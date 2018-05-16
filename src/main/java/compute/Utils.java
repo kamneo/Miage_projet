@@ -43,14 +43,18 @@ public class Utils {
     }
 
     private static List<String> getProjections(int k, String table, List<Node> nodes){
-        List<String> res= new ArrayList<String>();
+        List<Node> res= new ArrayList<Node>();
 
+        //for(k)
         for (int i=0; i<k; i++){
             Node highestB = null;
+            //Pour chaque noeud on calcul son benefice
             for (Node node : nodes){
+                if(node.getName().isContaintedIn(res))
+                    continue;
                 int b = 0;
                 int pi = benefice(node);
-                List<Node> sons = DBUtil.getSons(node,table);
+                List<Node> sons = DBUtil.getSons(node,table,res);
                 for (Node son : sons) {
                     if(son.getProfite()>pi)
                         b+= pi;
@@ -60,7 +64,8 @@ public class Utils {
                 if (highestB==null || b > highestB.getProfite())
                     highestB = new Node(node.getName(), 0, b);
             }
-            res.add(highestB.getName());
+            res.add();
+
         }
         return res;
     }
