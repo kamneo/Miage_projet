@@ -4,9 +4,7 @@ import DBConnection.DBUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Utils {
     private static String letters(int size){
@@ -32,10 +30,10 @@ public class Utils {
         return compute("", letters(size), res);
     }
 
-    public static Map<String, Integer> nbRowsBySubGroups(List<String> combinations, String tableName) throws SQLException {
-        Map<String, Integer> costs = new HashMap<String, Integer>();
+    public static List<Node> nbRowsBySubGroups(List<String> combinations, String tableName) throws SQLException {
+        List<Node> costs = new ArrayList<Node>();
         for(String subGroup : combinations) {
-            costs.put(subGroup, nbRowsBySubGroup(subGroup, tableName));
+            costs.add(new Node(subGroup, nbRowsBySubGroup(subGroup, tableName)));
         }
         return costs;
     }
@@ -44,5 +42,27 @@ public class Utils {
         return DBUtil.countAllFromSubGroup(subGroup, tableName);
     }
 
+    private static List<String> getProjections(int k, String table, List<Node> nodes){
+        List<String> res= new ArrayList<String>();
+
+        for (int i=0; i<k; i++){
+            Node highestB = null;
+            for (Node node : nodes){
+                int b = 0;
+                int pi = benefice(node);
+                List<Node> sons = DBUtil.getSons(node,table);
+                for (Node son : sons) {
+                    if(son.getProfite()>pi)
+                        b+= pi;
+                    else
+                        b+=pi-son.getProfite();
+                }
+                if (highestB==null || b > highestB.getProfite())
+                    highestB = new Node(node.getName(), 0, b);
+            }
+            res.add(highestB.getName());
+        }
+        return res;
+    }
 
 }
