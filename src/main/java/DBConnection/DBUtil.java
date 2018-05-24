@@ -1,19 +1,19 @@
 package DBConnection;
 
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.sql.*;
+
 import java.util.Calendar;
 import java.util.Random;
 
 public class DBUtil {
-    public static void generateTable(int nbCol, int nbRow, int nbVal) throws SQLException {
-        generateTable(null, nbCol, nbRow, nbVal);
+    public static String generateTable(int nbCol, int nbRow, int nbVal) throws SQLException {
+        return generateTable(null, nbCol, nbRow, nbVal);
     }
 
-    public static void generateTable(String tableName, int nbCol, int nbRow, int nbVal) throws SQLException {
+    public static String generateTable(String tableName, int nbCol, int nbRow, int nbVal) throws SQLException {
         StringBuilder sb = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         Calendar calendar = Calendar.getInstance();
         if(tableName == null)
@@ -32,6 +32,7 @@ public class DBUtil {
         fillRows(tableName, nbCol, nbRow, nbVal);
         DBConnection dbConnection = DBConnection.getInstance();
         dbConnection.closeDBConnection();
+        return tableName;
     }
 
     public static void fillRows(String tableName, int nbCol, int nbRow, int nbVal){
@@ -71,6 +72,18 @@ public class DBUtil {
         return r.nextInt(max - min) + min;
     }
 
+    public static ResultSet executeQuery(String sql){
+        Statement stmt = null;
+        try {
+            Connection connection = DBConnection.getInstance().getConnection();
+            stmt = connection.createStatement();
+            return stmt.executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void executeStatement(String sql){
         Statement stmt = null;
         try {
@@ -90,6 +103,8 @@ public class DBUtil {
     }
 
     public static int countAllFromSubGroup(String columns, String tableName) throws SQLException {
+        if(columns.equals("")) return 1;
+
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < columns.length(); i++)
             sb.append(columns.charAt(i) + ", ");
@@ -100,19 +115,64 @@ public class DBUtil {
         return res.getInt(1);
     }
 
-    private static ResultSet executeQuery(String sql) {
-        Statement stmt = null;
-        try {
-            stmt = DBConnection.getInstance().getConnection().createStatement();
-            return stmt.executeQuery(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static void dropTable(String tableName) {
         String sql = "DROP TABLE IF EXISTS " + tableName;
         executeStatement(sql);
+    }
+
+    public static boolean tableExist(String tableName) {
+        String sql = "SELECT * FROM "+ tableName + "LIMIT 1";
+        Statement stmt = null;
+        try {
+            stmt = DBConnection.getInstance().getConnection().createStatement();
+            stmt.executeQuery(sql);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void executeSQLFile(String pathname)
+    {
+        String s;
+        StringBuffer sb = new StringBuffer();
+
+        try
+        {
+            FileReader fr = new FileReader(new File(pathname));
+            BufferedReader br = new BufferedReader(fr);
+
+            while((s = br.readLine()) != null)
+            {
+                sb.append(s);
+            }
+            br.close();
+            String[] inst = sb.toString().split(";");
+            setAutocommit(false);
+            for(int i = 0; i<inst.length; i++)
+            {
+                if(!inst[i].trim().equals(""))
+                    executeStatement(inst[i]);
+            }
+            setAutocommit(true);
+        }
+        catch(Exception e)
+        {
+            System.out.println("*** Error : "+e.toString());
+            System.out.println("*** ");
+            System.out.println("*** Error : ");
+            e.printStackTrace();
+            System.out.println("################################################");
+            System.out.println(sb.toString());
+        }
+    }
+
+    public static int getNbColumn(String tableName) throws SQLException {
+        ResultSet rs = executeQuery("SELECT * FROM " + tableName + " LIMIT 1");
+        if (rs == null){
+            throw new SQLException("Error ! Unknown table named " + tableName);
+        }
+        return rs.getMetaData().getColumnCount();
     }
 }

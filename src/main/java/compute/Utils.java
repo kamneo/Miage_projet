@@ -17,20 +17,20 @@ public class Utils {
         return chars;
     }
 
-    private static List<String> compute(String prefix, String s, List<String> res) {
+    private static List<String> getAllCombinationsFromString(String prefix, String s, List<String> res) {
         res.add(prefix);
         for (int i = 0; i < s.length(); i++) {
-            compute(prefix + s.charAt(i), s.substring(i + 1), res);
+            getAllCombinationsFromString(prefix + s.charAt(i), s.substring(i + 1), res);
         }
         return res;
     }
 
-    public static List<String> allCombinations(int size){
+    public static List<String> getAllCombinationsFromNbCol(int size){
         List<String> res = new ArrayList<String>();
-        return compute("", letters(size), res);
+        return getAllCombinationsFromString("", letters(size), res);
     }
 
-    public static List<Node> nbRowsBySubGroups(List<String> combinations, String tableName) throws SQLException {
+    public static List<Node> getCosts(List<String> combinations, String tableName) throws SQLException {
         List<Node> costs = new ArrayList<Node>();
         for(String subGroup : combinations) {
             costs.add(new Node(subGroup, nbRowsBySubGroup(subGroup, tableName)));
@@ -42,32 +42,39 @@ public class Utils {
         return DBUtil.countAllFromSubGroup(subGroup, tableName);
     }
 
-    private static List<String> getProjections(int k, String table, List<Node> nodes){
+    private static List<Node> getProjections(int k, String tableName, List<Node> nodes){
         List<Node> res= new ArrayList<Node>();
 
         //for(k)
         for (int i=0; i<k; i++){
-            Node highestB = null;
+            Node highestBenefice = null;
             //Pour chaque noeud on calcul son benefice
             for (Node node : nodes){
-                if(node.getName().isContaintedIn(res))
+                if(containNodeNamedBy(node.getName(), res))
                     continue;
-                int b = 0;
-                int pi = benefice(node);
-                List<Node> sons = DBUtil.getSons(node,table,res);
+                int benefice = 0;
+                int pi = 0;//computeBenefice(node);
+                List<Node> sons = Node.getSons(node,res);
                 for (Node son : sons) {
                     if(son.getProfite()>pi)
-                        b+= pi;
+                        benefice+= pi;
                     else
-                        b+=pi-son.getProfite();
+                        benefice+=pi-son.getProfite();
                 }
-                if (highestB==null || b > highestB.getProfite())
-                    highestB = new Node(node.getName(), 0, b);
+                if (highestBenefice == null || benefice > highestBenefice.getProfite())
+                    highestBenefice = new Node(node.getName(), 0, benefice);
             }
-            res.add();
+            //res.add();
 
         }
         return res;
+    }
+
+    private static boolean containNodeNamedBy(String name, List<Node> nodes) {
+        for(Node n : nodes)
+            if(n.getName().equals(name))
+                return true;
+        return false;
     }
 
 }
