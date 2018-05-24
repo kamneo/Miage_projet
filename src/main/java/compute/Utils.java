@@ -42,19 +42,17 @@ public class Utils {
         return DBUtil.countAllFromSubGroup(subGroup, tableName);
     }
 
-    private static List<Node> getProjections(int k, String tableName, List<Node> nodes){
+    public static List<Node> getProjections(int k, List<Node> nodes){
         List<Node> res= new ArrayList<Node>();
 
-        //for(k)
         for (int i=0; i<k; i++){
             Node highestBenefice = null;
-            //Pour chaque noeud on calcul son benefice
             for (Node node : nodes){
                 if(containNodeNamedBy(node.getName(), res))
                     continue;
                 int benefice = 0;
-                int pi = 0;//computeBenefice(node);
-                List<Node> sons = Node.getSons(node,res);
+                int pi = bigestCost(nodes).getCost() - node.getCost();
+                List<Node> sons = getSons(node, nodes);
                 for (Node son : sons) {
                     if(son.getProfite()>pi)
                         benefice+= pi;
@@ -64,10 +62,17 @@ public class Utils {
                 if (highestBenefice == null || benefice > highestBenefice.getProfite())
                     highestBenefice = new Node(node.getName(), 0, benefice);
             }
-            //res.add();
-
+            res.add(highestBenefice);
         }
         return res;
+    }
+
+    private static Node bigestCost(List<Node> nodes) {
+        Node bigestNode = new Node("", 0,0);
+        for (Node n : nodes)
+            if(n.getCost() > bigestNode.getCost())
+                bigestNode = n;
+        return bigestNode;
     }
 
     private static boolean containNodeNamedBy(String name, List<Node> nodes) {
@@ -75,6 +80,16 @@ public class Utils {
             if(n.getName().equals(name))
                 return true;
         return false;
+    }
+
+    private static List<Node> getSons(Node node, List<Node> nodes) {
+        List<Node> res = new ArrayList<Node>();
+        if(node.getName().equals("")) return res;
+        for(Node n : nodes){
+            if(!n.getName().equals(node.getName()) && (n.getName().contains(node.getName()) || n.getName().equals("")))
+                res.add(n);
+        }
+        return res;
     }
 
 }

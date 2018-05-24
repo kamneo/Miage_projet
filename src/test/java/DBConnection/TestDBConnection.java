@@ -1,14 +1,14 @@
 package DBConnection;
 
-import com.mysql.jdbc.AssertionFailedException;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 
-import javax.annotation.PostConstruct;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestDBConnection {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -28,7 +28,7 @@ public class TestDBConnection {
     }
 
     @Test
-    public void createTable(){
+    public void Test1CreateTable(){
         Statement stmt = null;
         try {
             stmt = connection.createStatement();
@@ -46,7 +46,7 @@ public class TestDBConnection {
     }
 
     @Test
-    public void dropTable(){
+    public void Test2DropTable(){
         Statement stmt = null;
         try {
             stmt = connection.createStatement();

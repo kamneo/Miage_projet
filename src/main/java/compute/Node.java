@@ -44,13 +44,4 @@ public class Node {
     public void setProfite(int profite) {
         this.profite = profite;
     }
-
-    public static List<Node> getSons(Node node, List<Node> nodes) {
-        List<Node> res = new ArrayList<Node>();
-        for(Node n : nodes){
-            if(n.getName().contains(node.getName()))
-                res.add(n);
-        }
-        return res;
-    }
 }

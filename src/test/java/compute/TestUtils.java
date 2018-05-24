@@ -1,12 +1,13 @@
 package compute;
 
 import DBConnection.DBUtil;
-import junit.framework.Assert;
 import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestUtils {
     private static final String tableTestName = "testalgotable";
@@ -16,7 +17,7 @@ public class TestUtils {
     public void allCombinations(){
         int size = 3;
         List<String> res = Utils.getAllCombinationsFromNbCol(size);
-        Assert.assertEquals((int)Math.pow(2, size), res.size());
+        assertEquals((int)Math.pow(2, size), res.size());
     }
 
     @Test
@@ -24,14 +25,15 @@ public class TestUtils {
         DBUtil.dropTable(tableTestName);
         DBUtil.executeSQLFile(pathnameToSqlFile);
         int nbCol = DBUtil.getNbColumn(tableTestName);
-        Assert.assertEquals(3, nbCol);
+        assertEquals(3, nbCol);
         List<String> combinations = Utils.getAllCombinationsFromNbCol(nbCol);
         List<Node> costs = Utils.getCosts(combinations, tableTestName);
         List<Node> costsExpected = nodesExpected();
         for(Node n : costs)
             for (Node nodeExcepted : costsExpected)
                 if(n.getName().equals(nodeExcepted.getName()))
-                    Assert.assertEquals(nodeExcepted.getCost(), n.getCost());
+                    assertEquals(nodeExcepted.getCost(), n.getCost());
+        List<Node> projection = Utils.getProjections(2, costs);
     }
 
     private List<Node> nodesExpected() {
