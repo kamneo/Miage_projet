@@ -5,6 +5,7 @@ import DBConnection.DBUtil;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
     private static String letters(int size){
@@ -17,52 +18,54 @@ public class Utils {
         return chars;
     }
 
-    private static List<String> getAllCombinationsFromString(String prefix, String s, List<String> res) {
-        res.add(prefix);
+    private static List<Node> getAllCombinationsFromString(String prefix, String s, List<Node> res) {
+        res.add(new Node(prefix,0,0));
         for (int i = 0; i < s.length(); i++) {
             getAllCombinationsFromString(prefix + s.charAt(i), s.substring(i + 1), res);
         }
         return res;
     }
 
-    public static List<String> getAllCombinationsFromNbCol(int size){
-        List<String> res = new ArrayList<String>();
-        return getAllCombinationsFromString("", letters(size), res);
+    public static List<Node> getAllCombinationsFromNbCol(int size){
+        return getAllCombinationsFromString("", letters(size),  new ArrayList<Node>());
     }
 
-    public static List<Node> getCosts(List<String> combinations, String tableName) throws SQLException {
-        List<Node> costs = new ArrayList<Node>();
-        for(String subGroup : combinations) {
-            costs.add(new Node(subGroup, nbRowsBySubGroup(subGroup, tableName)));
+    public static void setCosts(List<Node> combinations, String tableName) throws SQLException {
+        for(Node node : combinations) {
+            node.setCost(nbRowsBySubGroup(node.getName(), tableName));
         }
-        return costs;
     }
 
     private static Integer nbRowsBySubGroup(String subGroup, String tableName) throws SQLException {
         return DBUtil.countAllFromSubGroup(subGroup, tableName);
     }
 
-    public static List<Node> getProjections(int k, List<Node> nodes){
-        List<Node> res= new ArrayList<Node>();
+    public static List<String> getProjections(int k, List<Node> nodes){
+        List<String> res= new ArrayList<String>();
+        int bigestCost = bigestCost(nodes).getCost();
 
         for (int i=0; i<k; i++){
-            Node highestBenefice = null;
+            Profit highestBenefice = null;
             for (Node node : nodes){
                 if(containNodeNamedBy(node.getName(), res))
                     continue;
-                int benefice = 0;
-                int pi = bigestCost(nodes).getCost() - node.getCost();
+                int pi = bigestCost - node.getCost();
+                int benefice = pi - node.getProfit();
                 List<Node> sons = getSons(node, nodes);
                 for (Node son : sons) {
-                    if(son.getProfite()>pi)
-                        benefice+= pi;
-                    else
-                        benefice+=pi-son.getProfite();
+                    if(pi-son.getProfit() > 0)
+                        benefice+=pi-son.getProfit();
                 }
-                if (highestBenefice == null || benefice > highestBenefice.getProfite())
-                    highestBenefice = new Node(node.getName(), 0, benefice);
+                if (highestBenefice == null || benefice > highestBenefice.getGlobalProfit())
+                    highestBenefice = new Profit(node.getName(), pi, benefice);
+                                    // nom du noeux, bénéfice individuel, bénéfice total du noeux
             }
-            res.add(highestBenefice);
+            List<Node> sons = getSons(highestBenefice.nodeName, nodes);
+            for(Node son : sons)
+                for(Node n : nodes)
+                    if(n.getName().equals(son.getName()) || n.getName().equals(highestBenefice.nodeName))
+                        n.setProfit(highestBenefice.getIndividualProfit());
+            res.add(highestBenefice.nodeName);
         }
         return res;
     }
@@ -75,21 +78,69 @@ public class Utils {
         return bigestNode;
     }
 
-    private static boolean containNodeNamedBy(String name, List<Node> nodes) {
-        for(Node n : nodes)
-            if(n.getName().equals(name))
+    private static boolean containNodeNamedBy(String name, List<String> nodes) {
+        for(String n : nodes)
+            if(n.equals(name))
                 return true;
         return false;
     }
 
     private static List<Node> getSons(Node node, List<Node> nodes) {
-        List<Node> res = new ArrayList<Node>();
-        if(node.getName().equals("")) return res;
-        for(Node n : nodes){
-            if(!n.getName().equals(node.getName()) && (n.getName().contains(node.getName()) || n.getName().equals("")))
-                res.add(n);
+        return getSons(node.getName(), nodes);
+    }
+
+    private static List<Node> getSons(String nodeName, List<Node> nodes){
+        List<Node> sons = getAllCombinationsFromString("", nodeName, new ArrayList<Node>());
+        Node toRemove = null;
+        for (Node son : sons) {
+            for (Node n : nodes)
+                if(n.getName().equals(son.getName())) {
+                    son.setCost(n.getCost());
+                    son.setProfit(n.getProfit());
+                }
+                if (son.getName().equals(nodeName))
+                    toRemove = son;
         }
-        return res;
+        sons.remove(toRemove);
+        return sons;
+    }
+
+    protected static class Profit{
+        private String nodeName;
+        private int individualProfit;
+        private int globalProfit;
+
+        public Profit(String nodeName, int individualProfit, int globalProfit){
+            this.nodeName = nodeName;
+            this.individualProfit = individualProfit;
+            this.globalProfit = globalProfit;
+        }
+
+        public String getNodeName() {
+            return nodeName;
+        }
+
+        public void setNodeName(String nodeName) {
+            this.nodeName = nodeName;
+        }
+
+        public int getIndividualProfit() {
+            return individualProfit;
+        }
+
+        public void setIndividualProfit(int individualProfit) {
+            this.individualProfit = individualProfit;
+        }
+
+        public int getGlobalProfit() {
+            return globalProfit;
+        }
+
+        public void setGlobalProfit(int globalProfit) {
+            this.globalProfit = globalProfit;
+        }
+
+
     }
 
 }

@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,24 +17,25 @@ public class TestUtils {
     @Test
     public void allCombinations(){
         int size = 3;
-        List<String> res = Utils.getAllCombinationsFromNbCol(size);
+        List<Node> res = Utils.getAllCombinationsFromNbCol(size);
         assertEquals((int)Math.pow(2, size), res.size());
     }
 
     @Test
-    public void getCosts() throws SQLException {
+    public void setCosts() throws SQLException {
         DBUtil.dropTable(tableTestName);
         DBUtil.executeSQLFile(pathnameToSqlFile);
         int nbCol = DBUtil.getNbColumn(tableTestName);
         assertEquals(3, nbCol);
-        List<String> combinations = Utils.getAllCombinationsFromNbCol(nbCol);
-        List<Node> costs = Utils.getCosts(combinations, tableTestName);
+        List<Node> combinations = Utils.getAllCombinationsFromNbCol(nbCol);
+        Utils.setCosts(combinations, tableTestName);
         List<Node> costsExpected = nodesExpected();
-        for(Node n : costs)
+        for(Node n : combinations) {
             for (Node nodeExcepted : costsExpected)
-                if(n.getName().equals(nodeExcepted.getName()))
+                if (n.getName().equals(nodeExcepted.getName()))
                     assertEquals(nodeExcepted.getCost(), n.getCost());
-        List<Node> projection = Utils.getProjections(2, costs);
+        }
+        List<String> projection = Utils.getProjections(3, combinations);
     }
 
     private List<Node> nodesExpected() {

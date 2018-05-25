@@ -1,24 +1,21 @@
 package compute;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Node {
 
     private String name;
     private int cost;
-    private int profite;
+    private int profit;
 
-    public Node(String name, int cost, int profite) {
+    public Node(String name, int cost, int profit) {
         this.name = name;
         this.cost = cost;
-        this.profite = profite;
+        this.profit = profit;
     }
 
     public Node(String name, int cost) {
         this.name = name;
         this.cost = cost;
-        this.profite = 0;
+        this.profit = 0;
     }
 
     public String getName() {
@@ -29,8 +26,8 @@ public class Node {
         return cost;
     }
 
-    public int getProfite() {
-        return profite;
+    public int getProfit() {
+        return profit;
     }
 
     public void setName(String name) {
@@ -41,7 +38,7 @@ public class Node {
         this.cost = cost;
     }
 
-    public void setProfite(int profite) {
-        this.profite = profite;
+    public void setProfit(int profit) {
+        this.profit = profit;
     }
 }
