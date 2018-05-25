@@ -1,6 +1,6 @@
 package compute;
 
-public class Node {
+public class Node implements Comparable {
 
     private String name;
     private int cost;
@@ -40,5 +40,9 @@ public class Node {
 
     public void setProfit(int profit) {
         this.profit = profit;
+    }
+
+    public int compareTo(Object o) {
+        return this.getName().compareTo(((Node)o).getName());
     }
 }

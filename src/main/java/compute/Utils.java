@@ -3,9 +3,7 @@ package compute;
 import DBConnection.DBUtil;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Utils {
     private static String letters(int size){
@@ -27,7 +25,13 @@ public class Utils {
     }
 
     public static List<Node> getAllCombinationsFromNbCol(int size){
-        return getAllCombinationsFromString("", letters(size),  new ArrayList<Node>());
+        List<Node> res = getAllCombinationsFromString("", letters(size),  new ArrayList<Node>());
+        Collections.sort(res, new Comparator<Node>() {
+            public int compare(Node o1, Node o2) {
+                return o2.getName().length() - o1.getName().length();
+            }
+        });
+        return res;
     }
 
     public static void setCosts(List<Node> combinations, String tableName) throws SQLException {
@@ -58,16 +62,19 @@ public class Utils {
                 }
                 if (highestBenefice == null || benefice > highestBenefice.getGlobalProfit())
                     highestBenefice = new Profit(node.getName(), pi, benefice);
-                                    // nom du noeux, bénéfice individuel, bénéfice total du noeux
             }
-            List<Node> sons = getSons(highestBenefice.nodeName, nodes);
-            for(Node son : sons)
-                for(Node n : nodes)
-                    if(n.getName().equals(son.getName()) || n.getName().equals(highestBenefice.nodeName))
-                        n.setProfit(highestBenefice.getIndividualProfit());
+            setProfitOnSons(highestBenefice, nodes);
             res.add(highestBenefice.nodeName);
         }
         return res;
+    }
+
+    private static void setProfitOnSons(Profit highestBenefice, List<Node> nodes) {
+        List<Node> sons = getSons(highestBenefice.nodeName, nodes);
+        for(Node son : sons)
+            for(Node n : nodes)
+                if(n.getName().equals(son.getName()) || n.getName().equals(highestBenefice.nodeName))
+                    n.setProfit(highestBenefice.individualProfit);
     }
 
     private static Node bigestCost(List<Node> nodes) {

@@ -28,19 +28,19 @@ public class TestDBUtil {
     }
 
     @Test
-    public void Test1CreateGeneratedTable() throws SQLException {
+    public void test1CreateGeneratedTable() throws SQLException {
         DBUtil.generateTable(tableName, 5, 5, 5);
         Assert.assertEquals(5, DBUtil.countAllFrom(tableName));
     }
 
     @Test
-    public void Test2CountAllFromSubGroup() throws SQLException {
+    public void test2CountAllFromSubGroup() throws SQLException {
         int res = DBUtil.countAllFromSubGroup("ABC", tableName);
         Assert.assertTrue(res <= DBUtil.countAllFrom(tableName));
     }
 
     @Test(expected = NullPointerException.class)
-    public void Test3DropTable() throws SQLException {
+    public void test3DropTable() throws SQLException {
         DBUtil.dropTable(tableName);
         DBUtil.countAllFrom(tableName);
     }

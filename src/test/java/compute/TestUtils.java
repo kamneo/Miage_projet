@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestUtils {
     private static final String tableTestName = "testalgotable";
@@ -36,6 +37,15 @@ public class TestUtils {
                     assertEquals(nodeExcepted.getCost(), n.getCost());
         }
         List<String> projection = Utils.getProjections(3, combinations);
+        assertEquals(3, projection.size());
+        assertTrue(projection.contains("AC"));
+        assertTrue(projection.contains("B"));
+        assertTrue(projection.contains("BC"));
+        assertTrue(!projection.contains("ABC"));
+        assertTrue(!projection.contains(""));
+        assertTrue(!projection.contains("AB"));
+        assertTrue(!projection.contains("A"));
+        assertTrue(!projection.contains("C"));
     }
 
     private List<Node> nodesExpected() {
