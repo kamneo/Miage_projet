@@ -1,6 +1,6 @@
 import DBConnection.DBUtil;
-import compute.Node;
-import compute.Utils;
+import core.Node;
+import core.Utils;
 
 import java.sql.SQLException;
 import java.util.List;
