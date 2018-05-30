@@ -28,7 +28,7 @@ public class TestDBConnection {
     }
 
     @Test
-    public void Test1CreateTable(){
+    public void t1CreateTable(){
         Statement stmt = null;
         try {
             stmt = connection.createStatement();
@@ -46,7 +46,7 @@ public class TestDBConnection {
     }
 
     @Test
-    public void Test2DropTable(){
+    public void t2DropTable(){
         Statement stmt = null;
         try {
             stmt = connection.createStatement();
