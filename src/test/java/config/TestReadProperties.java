@@ -6,7 +6,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class TestReadProperties{
-    @Rulegit
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
     public void fileExist(){
         OurProperties ourProperties = OurProperties.getInstance();
